@@ -18,12 +18,6 @@ const apiClient = axios.create({
   },
 });
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 // Function to upload a local file to the AssemblyAI API
 async function uploadFile(filePath: string): Promise<string | null> {
   console.log(`Uploading file: ${filePath}`);
