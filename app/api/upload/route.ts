@@ -1,3 +1,4 @@
+// File: app/api/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
@@ -31,8 +32,12 @@ async function uploadFile(filePath: string): Promise<string | null> {
     });
 
     return response.status === 200 ? response.data['upload_url'] : null;
-  } catch (error) {
-    console.error(`Error uploading file: ${error}`);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(`Error uploading file: ${error.message}`);
+    } else {
+      console.error('An unknown error occurred during file upload');
+    }
     return null;
   }
 }
@@ -63,8 +68,12 @@ async function transcribeAudio(audioUrl: string): Promise<any> {
     }
 
     return apiClient.get(`/transcript/${transcriptId}`);
-  } catch (error) {
-    console.error('Error transcribing audio:', error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error transcribing audio:', error.message);
+    } else {
+      console.error('An unknown error occurred during transcription');
+    }
     throw error;
   }
 }
@@ -98,7 +107,6 @@ function formatTime(milliseconds: number): string {
 
 // Function to generate captions and convert SRT to ASS
 async function generateCaptions(audioBuffer: Buffer): Promise<{ srtFilePath: string; assFilePath: string }> {
-  
   const uploadsDir = path.join('public', 'uploads');
   const processedDir = path.join(uploadsDir, 'processed');
   const audioFilePath = path.join(uploadsDir, 'audio.wav');
@@ -180,8 +188,12 @@ async function generateCaptions(audioBuffer: Buffer): Promise<{ srtFilePath: str
     });
 
     return { srtFilePath: normalizedSrtFilePath, assFilePath: normalizedAssFilePath };
-  } catch (error) {
-    console.error('Error generating captions:', error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error generating captions:', error.message);
+    } else {
+      console.error('An unknown error occurred during caption generation');
+    }
     throw error;
   }
 }
@@ -218,32 +230,45 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
+    // Save the uploaded video
     fs.writeFileSync(originalVideoPath, buffer);
-    console.log(`Video file saved at: ${originalVideoPath}`);
+    console.log(`Original video saved at: ${originalVideoPath}`);
 
+    // Add captions to the video
     await new Promise<void>((resolve, reject) => {
-      const command = `ffmpeg -i "${originalVideoPath}" -vf ass="${assFilePath}" "${captionedVideoPath}"`;
-
-      exec(command, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`Error executing command: ${error}`);
-          reject(error);
-        } else {
-          console.log('FFmpeg command executed successfully');
+      ffmpeg(originalVideoPath)
+        .outputOptions([
+          `-vf subtitles=${assFilePath}`,
+          '-c:v libx264',
+          '-c:a aac',
+          '-strict experimental'
+        ])
+        .save(captionedVideoPath)
+        .on('end', () => {
+          console.log(`Captioned video saved at: ${captionedVideoPath}`);
           resolve();
-        }
-      });
+        })
+        .on('error', (err: any) => {
+          console.error('Error adding captions to video:', err);
+          reject(err);
+        });
     });
 
-    // Return the path to the captioned video
+    // Return the URL of the captioned video
     const captionedVideoUrl = `/uploads/captioned_video.mp4`;
+    console.log(`Captioned video URL: ${captionedVideoUrl}`);
 
     return NextResponse.json({
       message: 'Video processed and captions added successfully!',
       downloadLink: captionedVideoUrl,
     });
-  } catch (error) {
-    console.error('Error handling POST request:', error);
-    return NextResponse.json({ error: 'An error occurred while processing the video' }, { status: 500 });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error handling POST request:', error.message);
+      return NextResponse.json({ error: 'An error occurred while processing the video', details: error.message }, { status: 500 });
+    } else {
+      console.error('An unknown error occurred during POST request handling');
+      return NextResponse.json({ error: 'An unknown error occurred' }, { status: 500 });
+    }
   }
 }

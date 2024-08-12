@@ -1,12 +1,21 @@
 "use client";
 
-import { useState, DragEvent, ChangeEvent } from "react";
+import { useState, DragEvent, ChangeEvent, useEffect } from "react";
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [captionedVideoUrl, setCaptionedVideoUrl] = useState<string | null>(null);
+
+  // Clean up object URL on component unmount
+  useEffect(() => {
+    return () => {
+      if (videoPreview) {
+        URL.revokeObjectURL(videoPreview);
+      }
+    };
+  }, [videoPreview]);
 
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -15,9 +24,6 @@ export default function Home() {
       setFile(droppedFile);
       const previewUrl = URL.createObjectURL(droppedFile);
       setVideoPreview(previewUrl);
-
-      // Clean up the object URL when the component unmounts
-      return () => URL.revokeObjectURL(previewUrl);
     }
   };
 
@@ -27,9 +33,6 @@ export default function Home() {
       setFile(selectedFile);
       const previewUrl = URL.createObjectURL(selectedFile);
       setVideoPreview(previewUrl);
-
-      // Clean up the object URL when the component unmounts
-      return () => URL.revokeObjectURL(previewUrl);
     }
   };
 
@@ -54,10 +57,13 @@ export default function Home() {
           const result = await response.json();
           setCaptionedVideoUrl(result.downloadLink);
           setUploadStatus("Upload successful!");
+          console.log('Upload successful:', result);
 
           // Remove the video preview after upload
           setVideoPreview(null);
         } else {
+          const result = await response.json();
+          console.error('Upload failed:', result.error, result.details);
           setUploadStatus("Upload failed");
         }
       } catch (error) {
@@ -70,7 +76,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div
-        className="border-dashed border-4 border-gray-300 p-12 rounded-lg bg-white"
+        className="border-dashed border-4 border-gray-300 p-12 rounded-lg bg-white flex flex-col items-center"
         onDrop={handleDrop}
         onDragOver={handleDragOver}
       >
@@ -78,54 +84,30 @@ export default function Home() {
           type="file"
           accept="video/*"
           onChange={handleFileChange}
-          className="hidden"
-          id="video-upload"
+          className="mb-4"
         />
-        <label
-          htmlFor="video-upload"
-          className="flex flex-col items-center justify-center cursor-pointer"
+        <div className="mb-4 text-center">
+          <p>Drag and drop your video here, or</p>
+          <p className="text-blue-500 underline">choose a file</p>
+        </div>
+        {videoPreview && <video src={videoPreview} controls width="300" />}
+        <button
+          onClick={handleUpload}
+          className="mt-4 bg-blue-500 text-white p-2 rounded"
+          disabled={uploadStatus === "Uploading..."}
         >
-          <p className="text-gray-500">Drag & drop or click here to upload a video</p>
-        </label>
-
-        {videoPreview && !captionedVideoUrl && (
-          <div className="mt-4">
-            <video
-              src={videoPreview}
-              controls
-              className="w-full max-w-md h-auto rounded-lg mb-4"
-            />
-            <button
-              onClick={handleUpload}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-            >
-              Caption Video
-            </button>
-          </div>
-        )}
-
-        {uploadStatus && (
-          <p className="mt-4 text-sm text-gray-600">{uploadStatus}</p>
-        )}
-
+          {uploadStatus === "Uploading..." ? "Uploading..." : "Upload Video"}
+        </button>
+        {uploadStatus && <p className="mt-2">{uploadStatus}</p>}
         {captionedVideoUrl && (
-          <div className="mt-4">
-            <p className="text-red-500">Video URL: {captionedVideoUrl}</p>
-            <video
-              src={captionedVideoUrl}
-              controls
-              className="w-full max-w-md h-auto rounded-lg mb-4"
-            />
-            <a
-              href={captionedVideoUrl}
-              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 mt-2 inline-block"
-            >
-              View Captioned Video
-            </a>
-          </div>
+          <a
+            href={captionedVideoUrl}
+            download
+            className="mt-4 bg-green-500 text-white p-2 rounded inline-block"
+          >
+            Download Captioned Video
+          </a>
         )}
-
-
       </div>
     </div>
   );
