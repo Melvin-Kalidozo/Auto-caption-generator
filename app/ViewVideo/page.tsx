@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import Sidebar from './Sidebar'; 
+import Sidebar from '../Sidebar'; 
 import { FaPlay, FaPause, FaUpload } from 'react-icons/fa';
 import { IoMenu } from 'react-icons/io5'; 
-import Header from './Header';
+import Header from '../Header';
 
 
 
