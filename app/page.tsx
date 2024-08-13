@@ -6,7 +6,8 @@ export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
-  const [captionedVideoUrl, setCaptionedVideoUrl] = useState<string | null>(null);
+  const [srtUrl, setSrtUrl] = useState<string | null>(null);
+  const [assUrl, setAssUrl] = useState<string | null>(null);
 
   // Clean up object URL on component unmount
   useEffect(() => {
@@ -19,96 +20,90 @@ export default function Home() {
 
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const droppedFile = event.dataTransfer.files[0];
-    if (droppedFile && droppedFile.type.startsWith("video/")) {
-      setFile(droppedFile);
-      const previewUrl = URL.createObjectURL(droppedFile);
-      setVideoPreview(previewUrl);
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      setFile(files[0]);
+      setVideoPreview(URL.createObjectURL(files[0]));
     }
   };
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile && selectedFile.type.startsWith("video/")) {
-      setFile(selectedFile);
-      const previewUrl = URL.createObjectURL(selectedFile);
-      setVideoPreview(previewUrl);
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files?.length) {
+      setFile(event.target.files[0]);
+      setVideoPreview(URL.createObjectURL(event.target.files[0]));
     }
-  };
-
-  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
   };
 
   const handleUpload = async () => {
-    if (file) {
-      setUploadStatus("Uploading...");
+    if (!file) {
+      alert("Please select a video file first.");
+      return;
+    }
 
+    setUploadStatus("Uploading...");
+    try {
       const formData = new FormData();
       formData.append("video", file);
 
-      try {
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-        if (response.ok) {
-          const result = await response.json();
-          setCaptionedVideoUrl(result.downloadLink);
-          setUploadStatus("Upload successful!");
-          console.log('Upload successful:', result);
-
-          // Remove the video preview after upload
-          setVideoPreview(null);
-        } else {
-          const result = await response.json();
-          console.error('Upload failed:', result.error, result.details);
-          setUploadStatus("Upload failed");
-        }
-      } catch (error) {
-        console.error("Error uploading video:", error);
-        setUploadStatus("Upload failed");
+      if (!response.ok) {
+        throw new Error("Failed to upload video");
       }
+
+      const result = await response.json();
+      console.log(result);
+
+      if (result.error) {
+        setUploadStatus("Failed to generate captions.");
+      } else {
+        setSrtUrl(result.srtUrl);
+        setAssUrl(result.assUrl);
+        setUploadStatus("Captions generated and uploaded successfully.");
+      }
+    } catch (error) {
+      console.error(error);
+      setUploadStatus("An error occurred while uploading.");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div
-        className="border-dashed border-4 border-gray-300 p-12 rounded-lg bg-white flex flex-col items-center"
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-      >
-        <input
-          type="file"
-          accept="video/*"
-          onChange={handleFileChange}
-          className="mb-4"
-        />
-        <div className="mb-4 text-center">
-          <p>Drag and drop your video here, or</p>
-          <p className="text-blue-500 underline">choose a file</p>
+    <div
+      onDrop={handleDrop}
+      onDragOver={(e) => e.preventDefault()}
+      className="flex flex-col items-center justify-center min-h-screen"
+    >
+      <h1 className="text-2xl font-bold mb-4">Upload Video for Transcription</h1>
+      <input type="file" accept="video/*" onChange={handleChange} />
+      {videoPreview && (
+        <div className="mt-4">
+          <video controls src={videoPreview} className="w-full max-w-md" />
         </div>
-        {videoPreview && <video src={videoPreview} controls width="300" />}
-        <button
-          onClick={handleUpload}
-          className="mt-4 bg-blue-500 text-white p-2 rounded"
-          disabled={uploadStatus === "Uploading..."}
-        >
-          {uploadStatus === "Uploading..." ? "Uploading..." : "Upload Video"}
-        </button>
-        {uploadStatus && <p className="mt-2">{uploadStatus}</p>}
-        {captionedVideoUrl && (
-          <a
-            href={captionedVideoUrl}
-            download
-            className="mt-4 bg-green-500 text-white p-2 rounded inline-block"
-          >
-            Download Captioned Video
+      )}
+      <button
+        onClick={handleUpload}
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+      >
+        Upload and Generate Captions
+      </button>
+      {uploadStatus && <p className="mt-4 text-lg">{uploadStatus}</p>}
+      {srtUrl && (
+        <p className="mt-2 text-blue-600">
+          <a href={srtUrl} target="_blank" rel="noopener noreferrer">
+            Download SRT Captions
           </a>
-        )}
-      </div>
+        </p>
+      )}
+      {assUrl && (
+        <p className="mt-2 text-blue-600">
+          <a href={assUrl} target="_blank" rel="noopener noreferrer">
+            Download ASS Captions
+          </a>
+        </p>
+      )}
     </div>
   );
 }

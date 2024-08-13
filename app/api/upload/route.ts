@@ -1,16 +1,14 @@
-// File: app/api/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-import ffmpeg from 'fluent-ffmpeg';
 import axios from 'axios';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '@/firebase'; // Adjust the path to your firebase.ts
+import ffmpeg from 'fluent-ffmpeg';
+import { Buffer } from 'buffer';
 import { exec } from 'child_process';
 
-// Constants
-const ASSEMBLYAI_API_KEY = 'fb8ede8de7a848338d975c4dcf1bc885'; // Replace with your actual API token
+const ASSEMBLYAI_API_KEY = 'fb8ede8de7a848338d975c4dcf1bc885';
 const ASSEMBLYAI_API_URL = 'https://api.assemblyai.com/v2';
 
-// Initialize Axios instance
 const apiClient = axios.create({
   baseURL: ASSEMBLYAI_API_URL,
   headers: {
@@ -19,25 +17,22 @@ const apiClient = axios.create({
   },
 });
 
-// Function to upload a local file to the AssemblyAI API
-async function uploadFile(filePath: string): Promise<string | null> {
-  console.log(`Uploading file: ${filePath}`);
-
+// Function to upload a file to Firebase Storage
+async function uploadFileToFirebase(
+  file: Blob,
+  folder: string,
+  fileName: string
+): Promise<string | null> {
   try {
-    const data = fs.readFileSync(filePath);
-    const response = await apiClient.post('/upload', data, {
-      headers: {
-        'Content-Type': 'application/octet-stream',
-      },
-    });
-
-    return response.status === 200 ? response.data['upload_url'] : null;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error(`Error uploading file: ${error.message}`);
-    } else {
-      console.error('An unknown error occurred during file upload');
-    }
+    console.log(`Uploading file to Firebase: ${folder}/${fileName}`);
+    const storageRef = ref(storage, `${folder}/${fileName}`);
+    const metadata = { contentType: file.type };
+    await uploadBytes(storageRef, file, metadata);
+    const downloadURL = await getDownloadURL(storageRef);
+    console.log(`File uploaded to Firebase. Download URL: ${downloadURL}`);
+    return downloadURL;
+  } catch (error) {
+    console.error('Error uploading file to Firebase:', error);
     return null;
   }
 }
@@ -45,7 +40,6 @@ async function uploadFile(filePath: string): Promise<string | null> {
 // Function to transcribe audio using AssemblyAI API
 async function transcribeAudio(audioUrl: string): Promise<any> {
   console.log(`Transcribing audio at URL: ${audioUrl}`);
-
   try {
     const transcriptResponse = await apiClient.post('/transcript', {
       audio_url: audioUrl,
@@ -53,6 +47,7 @@ async function transcribeAudio(audioUrl: string): Promise<any> {
     });
 
     const transcriptId = transcriptResponse.data.id;
+    console.log(`Transcript ID: ${transcriptId}`);
     let transcriptStatus;
 
     do {
@@ -68,12 +63,8 @@ async function transcribeAudio(audioUrl: string): Promise<any> {
     }
 
     return apiClient.get(`/transcript/${transcriptId}`);
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error('Error transcribing audio:', error.message);
-    } else {
-      console.error('An unknown error occurred during transcription');
-    }
+  } catch (error) {
+    console.error('Error transcribing audio:', error);
     throw error;
   }
 }
@@ -92,6 +83,7 @@ function formatToSRT(utterances: { start: number; end: number; speaker: string; 
     counter++;
   }
 
+  console.log('SRT format content generated.');
   return srtContent;
 }
 
@@ -105,170 +97,143 @@ function formatTime(milliseconds: number): string {
   return `${hours}:${minutes}:${seconds},${millisecondsFormatted}`;
 }
 
-// Function to generate captions and convert SRT to ASS
-async function generateCaptions(audioBuffer: Buffer): Promise<{ srtFilePath: string; assFilePath: string }> {
-  const uploadsDir = path.join('public', 'uploads');
-  const processedDir = path.join(uploadsDir, 'processed');
-  const audioFilePath = path.join(uploadsDir, 'audio.wav');
-  const processedAudioFilePath = path.join(processedDir, 'processed_audio.wav');
-  const srtFilePath = path.join(processedDir, 'captions.srt');
-  const assFilePath = path.join(processedDir, 'captions.ass');
+// Function to convert SRT to ASS format
+function convertSrtToAss(srtContent: string): string {
+  console.log('Converting SRT to ASS format...');
+  return srtContent.replace(/,/g, '.');
+}
 
-  // Replace backslashes with forward slashes
-  const normalizePath = (p: string) => p.replace(/\\/g, '/');
-  
-  const normalizedUploadsDir = normalizePath(uploadsDir);
-  const normalizedProcessedDir = normalizePath(processedDir);
-  const normalizedAudioFilePath = normalizePath(audioFilePath);
-  const normalizedProcessedAudioFilePath = normalizePath(processedAudioFilePath);
-  const normalizedSrtFilePath = normalizePath(srtFilePath);
-  const normalizedAssFilePath = normalizePath(assFilePath);
-
-  console.log('Generating captions...');
-  console.log('Audio buffer received. Processing...');
-
+// Function to generate captions and upload them to Firebase
+async function generateCaptionsAndUpload(
+  file: Blob,
+  folder: string
+): Promise<{ srtUrl: string; assUrl: string } | null> {
   try {
-    // Ensure directories exist
-    if (!fs.existsSync(normalizedUploadsDir)) {
-      fs.mkdirSync(normalizedUploadsDir, { recursive: true });
-    }
-    if (!fs.existsSync(normalizedProcessedDir)) {
-      fs.mkdirSync(normalizedProcessedDir, { recursive: true });
-    }
-
-    // Save the audio buffer to a file
-    fs.writeFileSync(normalizedAudioFilePath, audioBuffer);
-    console.log(`Audio file saved at: ${normalizedAudioFilePath}`);
-
-    // Process the audio file
-    console.log('Processing audio file...');
-    await new Promise<void>((resolve, reject) => {
-      ffmpeg(normalizedAudioFilePath)
-        .noVideo()
-        .audioCodec('pcm_s16le')
-        .audioFilters('aformat=sample_fmts=s16:sample_rates=16000')
-        .save(normalizedProcessedAudioFilePath)
-        .on('end', () => {
-          console.log(`Processed audio file saved at: ${normalizedProcessedAudioFilePath}`);
-          resolve();
-        })
-        .on('error', (err: any) => {
-          console.error('Error processing audio file:', err);
-          reject(err);
-        });
-    });
-
-    // Upload the processed audio file
-    const audioUrl = await uploadFile(normalizedProcessedAudioFilePath);
+    console.log('Uploading audio file to Firebase...');
+    const audioUrl = await uploadFileToFirebase(file, folder, 'uploaded_audio.wav');
+    
     if (!audioUrl) {
-      throw new Error('Failed to upload audio file');
+      throw new Error('Failed to upload audio to Firebase');
     }
-    console.log('Audio uploaded successfully. URL:', audioUrl);
 
-    // Transcribe the uploaded audio
-    const transcriptData = await transcribeAudio(audioUrl);
+    console.log('Transcribing audio...');
+    const transcript = await transcribeAudio(audioUrl);
+    const srtContent = formatToSRT(transcript.data.utterances);
 
-    // Save the SRT file
-    fs.writeFileSync(normalizedSrtFilePath, formatToSRT(transcriptData.data.utterances));
-    console.log(`SRT file saved at: ${normalizedSrtFilePath}`);
-
-    // Convert the SRT file to ASS format
-    await new Promise<void>((resolve, reject) => {
-      ffmpeg(normalizedSrtFilePath)
-        .output(normalizedAssFilePath)
-        .on('end', () => {
-          console.log(`ASS file saved at: ${normalizedAssFilePath}`);
-          resolve();
-        })
-        .on('error', (err: any) => {
-          console.error('Error converting SRT to ASS:', err);
-          reject(err);
-        })
-        .run();
-    });
-
-    return { srtFilePath: normalizedSrtFilePath, assFilePath: normalizedAssFilePath };
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error('Error generating captions:', error.message);
-    } else {
-      console.error('An unknown error occurred during caption generation');
+    const srtBuffer = Buffer.from(srtContent, 'utf-8');
+    console.log('Uploading SRT file to Firebase...');
+    const srtUrl = await uploadFileToFirebase(new Blob([srtBuffer]), folder, 'captions.srt');
+    if (!srtUrl) {
+      throw new Error('Failed to upload SRT to Firebase');
     }
-    throw error;
+
+    const assContent = convertSrtToAss(srtContent);
+    const assBuffer = Buffer.from(assContent, 'utf-8');
+    console.log('Uploading ASS file to Firebase...');
+    const assUrl = await uploadFileToFirebase(new Blob([assBuffer]), folder, 'captions.ass');
+    if (!assUrl) {
+      throw new Error('Failed to upload ASS to Firebase');
+    }
+
+    console.log('Captions generated and uploaded successfully.');
+    return { srtUrl, assUrl };
+  } catch (error) {
+    console.error('Error generating captions:', error);
+    return null;
   }
 }
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
-  console.log('Handling POST request');
+// Function to add captions to a video using FFmpeg
+async function addCaptionsToVideo(
+  videoFile: Blob,
+  assUrl: string,
+  folder: string
+): Promise<Blob | null> {
   try {
+    console.log('Downloading ASS file from Firebase...');
+    const assResponse = await fetch(assUrl);
+    if (!assResponse.ok) {
+      throw new Error('Failed to download ASS file');
+    }
+    const assContent = await assResponse.text();
+
+    // Upload the video to Firebase Storage to get a file path
+    const videoUrl = await uploadFileToFirebase(videoFile, folder, 'original_video.mp4');
+    if (!videoUrl) {
+      throw new Error('Failed to upload video to Firebase');
+    }
+
+    console.log('Adding captions to video...');
+    return new Promise<Blob>((resolve, reject) => {
+      const originalVideoPath = 'original_video.mp4';
+      const assFilePath = 'captions.ass';
+      const captionedVideoPath = 'output_with_captions.mp4';
+
+      // Create a command to add captions using FFmpeg
+      const command = `ffmpeg -i "${videoUrl}" -vf ass="${assUrl}" "save directly to w"`;
+
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error executing command: ${error}`);
+          reject(error);
+        } else {
+          console.log('FFmpeg command executed successfully');
+
+          // Assuming that the output file is stored locally, convert it to a Blob and resolve it
+          const outputFile = captionedVideoPath;
+          resolve(new Blob([Buffer.from(outputFile)], { type: 'video/mp4' }));
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Error adding captions to video:', error);
+    return null;
+  }
+}
+
+
+// Handle POST requests to generate captions, add them to the video, and upload files
+export async function POST(req: NextRequest) {
+  try {
+    console.log('Handling POST request...');
     const formData = await req.formData();
-    const videoFile = formData.get('video') as File;
+    const videoFile = formData.get('video') as Blob; // Ensure 'video' matches the field name in the form
+
+    // console.log("uploading video ...")
+    // const videoUrl = await uploadFileToFirebase(videoFile, folder, 'uploaded_video.mp4');
 
     if (!videoFile) {
-      console.log('No file uploaded');
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+      console.error('No video file provided in the request.');
+      return NextResponse.json({ error: 'No video file provided' }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await videoFile.arrayBuffer());
-    console.log('File buffer received. Generating captions...');
-    const { assFilePath } = await generateCaptions(buffer);
+    console.log('File received. Generating captions and uploading...');
+    const folder = 'your_folder_name';
+    const result = await generateCaptionsAndUpload(videoFile, folder);
 
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    const originalVideoPath = path.join(uploadsDir, 'original_video.mp4');
-    const captionedVideoPath = path.join(uploadsDir, 'captioned_video.mp4');
-
-    // Clear existing files
-    if (fs.existsSync(originalVideoPath)) {
-      fs.unlinkSync(originalVideoPath);
+    if (!result) {
+      console.error('Failed to generate captions.');
+      return NextResponse.json({ error: 'Failed to generate captions' }, { status: 500 });
     }
 
-    if (fs.existsSync(captionedVideoPath)) {
-      fs.unlinkSync(captionedVideoPath);
+    console.log('Adding captions to video...');
+    const videoWithCaptions = await addCaptionsToVideo(videoFile, result.srtUrl, folder);
+    if (!videoWithCaptions) {
+      console.error('Failed to add captions to video.');
+      return NextResponse.json({ error: 'Failed to add captions to video' }, { status: 500 });
     }
 
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
+    console.log('Uploading video with captions to Firebase...');
+    const videoUrl = await uploadFileToFirebase(videoWithCaptions, folder, 'video_with_captions.mp4');
+    if (!videoUrl) {
+      console.error('Failed to upload video with captions to Firebase.');
+      return NextResponse.json({ error: 'Failed to upload video with captions' }, { status: 500 });
     }
 
-    // Save the uploaded video
-    fs.writeFileSync(originalVideoPath, buffer);
-    console.log(`Original video saved at: ${originalVideoPath}`);
-
-    // Add captions to the video
-    await new Promise<void>((resolve, reject) => {
-      ffmpeg(originalVideoPath)
-        .outputOptions([
-          `-vf subtitles=${assFilePath}`,
-          '-c:v libx264',
-          '-c:a aac',
-          '-strict experimental'
-        ])
-        .save(captionedVideoPath)
-        .on('end', () => {
-          console.log(`Captioned video saved at: ${captionedVideoPath}`);
-          resolve();
-        })
-        .on('error', (err: any) => {
-          console.error('Error adding captions to video:', err);
-          reject(err);
-        });
-    });
-
-    // Return the URL of the captioned video
-    const captionedVideoUrl = `/uploads/captioned_video.mp4`;
-    console.log(`Captioned video URL: ${captionedVideoUrl}`);
-
-    return NextResponse.json({
-      message: 'Video processed and captions added successfully!',
-      downloadLink: captionedVideoUrl,
-    });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error('Error handling POST request:', error.message);
-      return NextResponse.json({ error: 'An error occurred while processing the video', details: error.message }, { status: 500 });
-    } else {
-      console.error('An unknown error occurred during POST request handling');
-      return NextResponse.json({ error: 'An unknown error occurred' }, { status: 500 });
-    }
+    console.log('Returning response with video URL.');
+    return NextResponse.json({ videoUrl });
+  } catch (error) {
+    console.error('Error processing request:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
