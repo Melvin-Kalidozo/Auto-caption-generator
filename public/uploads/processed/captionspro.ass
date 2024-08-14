@@ -1,0 +1,14 @@
+[Script Info]
+Title: Default Subtitle
+Original Script: ChatGPT
+ScriptType: v4.00
+Collisions: Normal
+PlayDepth: 0
+
+[V4 Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, TertiaryColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, AlphaLevel, Encoding
+Style: Default,Arial,20,16777215,0,0,0,-1,0,1,1.0,0.0,2,10,10,10,0,0
+
+[Events]
+Format: Marked, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: Marked=0,00:00:00.000,NaN:NaN:NaN.NaN,Default,,0,0,0,,undefined
