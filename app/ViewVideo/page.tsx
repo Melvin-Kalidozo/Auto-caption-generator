@@ -57,7 +57,7 @@ const Video = () => {
         {/* Main content area where the videos will be displayed */}
         <div className="flex flex-wrap items-center justify-center w-full p-8 gap-4">
           {videos.map((videoSrc, index) => (
-            <div key={index} className="flex flex-col items-center justify-center w-100 p-4 bg-white shadow-lg rounded-xl">
+            <div key={index} className="flex flex-col items-center justify-center w-full p-4 bg-white shadow-lg rounded-xl">
               <video
                 src={videoSrc}
                 data-index={index}

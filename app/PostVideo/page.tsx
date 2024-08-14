@@ -1,124 +1,129 @@
 "use client";
 
 import React, { useState } from 'react';
-import Sidebar from '../Sidebar'; 
-import { FaPlay, FaPause, FaUpload } from 'react-icons/fa';
-import { IoMenu } from 'react-icons/io5'; // Import the menu icon for mobile
-import { IoIosCut } from "react-icons/io";
+import { FaUpload, FaFilter, FaTextHeight } from 'react-icons/fa';
 import Header from '../Header';
+import { FaClosedCaptioning } from "react-icons/fa";
+
 
 const PostVideo: React.FC = () => {
   const [videoSrc, setVideoSrc] = useState('https://www.w3schools.com/html/mov_bbb.mp4');
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [videoRef, setVideoRef] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State to manage sidebar visibility
-  const [selectedFile, setSelectedFile] = useState(null);
-
-  const togglePlayPause = () => {
-    if (videoRef) {
-      if (isPlaying) {
-        videoRef.pause();
-      } else {
-        videoRef.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const handleTrim = () => {
-   
-  };
-  
-
-
-
-
-
-
-
-
+  const [videoRef, setVideoRef] = useState<HTMLVideoElement | null>(null);
+  const [brightness, setBrightness] = useState(100); // Brightness state
+  const [fontSize, setFontSize] = useState(16); // Font size state
+  const [fontColor, setFontColor] = useState('#ffffff'); // Font color state
+  const [fontFamily, setFontFamily] = useState('Arial'); // Font family state
+  const [showFontOptions, setShowFontOptions] = useState(false); // Toggle font options
 
   const handleUpload = () => {
-    // Logic for uploading a new video
     console.log('Uploading video...');
   };
 
+  const handleBrightnessChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBrightness(Number(e.target.value));
+  };
 
+  const toggleFontOptions = () => {
+    setShowFontOptions(!showFontOptions);
+  };
 
-
-
-
-
-
-
-
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-
-  return (<div>
-
-    <Header />
-    <div className="flex min-h-screen bg-gray-100">
-      
-
-      <div className="flex-grow p-4">
-        <div className="flex items-center justify-between p-4 bg-white rounded-xl shadow-md mt-4">
-          <div className="flex items-center space-x-4">
-            <button 
-              className="bg-blue-500 text-white px-4 py-2 rounded-xl flex items-center"
-              onClick={handleUpload}
-            >
-              <FaUpload className="mr-2" /> Upload
-            </button>
-            <button 
-              className="bg-red-500 text-white px-4 py-2 rounded-xl flex items-center"
-              onClick={togglePlayPause}
-            >
-              {isPlaying ? <FaPause className="mr-2" /> : <FaPlay className="mr-2" />} 
-              {isPlaying ? 'Pause' : 'Play'}
-            </button>
-            <button 
-              className="bg-yellow-500 text-white px-4 py-2 rounded-xl flex items-center"
-              onClick={handleTrim}
-            >
-              <IoIosCut className="mr-2" /> Trim
-            </button>
-          </div>
-        </div>
-
-        <hr className="border-t-2 border-gray-300 my-4" />
-
-        <div className="flex items-center justify-center">
-          <div className="video-container flex flex-col items-center mt-4">
-            <video
-              src={videoSrc}   
-              controls
-              className="rounded-lg shadow-lg w-full max-w-xl"
-              ref={(ref) => setVideoRef(ref)}
-            />
-            <div className="flex mt-4 space-x-4">
-              <button 
-                className="bg-green-500 text-white px-4 py-2 rounded-xl flex items-center"
-                onClick={() => alert('Applying filter...')}
-              >
-                Apply Filter
-              </button>
-              <button 
-                className="bg-purple-500 text-white px-4 py-2 rounded-xl flex items-center"
-                onClick={() => alert('Adding text...')}
-              >
-                Add Text
-              </button>
-              <button 
-                className="bg-indigo-500 text-white px-4 py-2 rounded-xl flex items-center"
-                onClick={() => alert('Adding stickers...')}
-              >
-                Add Stickers
-              </button>
-            </div>
-          </div>
+  return (
+    <div 
+      className="bg-black text-white flex flex-col min-h-screen"
+      style={{ filter: `brightness(${brightness}%)` }} // Apply brightness to the background
+    >
+      <Header />
+      <div className="flex-grow flex justify-center items-center">
+        <div className="video-container w-full relative">
+          <video
+            src={videoSrc}
+            controls
+            className="shadow-lg w-full h-[75vh] max-h-[750px]"
+            ref={(ref) => setVideoRef(ref)}
+            style={{ filter: `brightness(${brightness}%)` }} // Apply brightness to the video
+            autoPlay
+          />
         </div>
       </div>
-    </div>
+
+      {/* Footer Section */}
+      <footer className="bg-gray-900 text-white p-8 px-4 mt-auto">
+           
+        {/* Font Options */}
+        {showFontOptions && (
+          <div className="flex flex-col mb-4 space-y-4 items-center justify-center">
+            <div className="flex items-center">
+              <label className="mr-4">Font Size:</label>
+              <input
+                type="number"
+                value={fontSize}
+                onChange={(e) => setFontSize(Number(e.target.value))}
+                className="text-black w-60 p-1 rounded-xl"
+              />
+            </div>
+            <div className="flex items-center">
+              <label className="mr-2">Font Color:</label>
+              <input
+                type="color"
+                value={fontColor}
+                onChange={(e) => setFontColor(e.target.value)}
+                className="w-60 p-1 rounded-xl"
+              />
+            </div>
+            <div className="flex items-center">
+              <label className="mr-3">Font Type:</label>
+              <select
+                value={fontFamily}
+                onChange={(e) => setFontFamily(e.target.value)}
+                className="text-black w-60 p-1 rounded-xl"
+              >
+                <option value="Arial">Arial</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Verdana">Verdana</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        <div className="flex justify-center">
+          <button 
+            className="bg-gray-900 text-white px-4 mr-2 py-2 rounded-xl border border-black"
+            onClick={handleUpload}
+          >
+            <FaUpload size={26} className="items-center text-center ml-3" />
+            <h1>Upload</h1>
+          </button>
+          <button 
+            className="bg-gray-900 text-white  px-4 mr-2 py-2 rounded-xl items-center border border-black"
+            onClick={handleUpload}
+          >
+            <FaClosedCaptioning size={26} className="ml-3" /> Caption
+          </button>
+          
+          <button 
+            className="bg-gray-900 text-white px-3 py-2 rounded-xl items-center border border-black"
+            onClick={toggleFontOptions}
+          >
+            <FaTextHeight size={26} className="ml-3" /> Edit Font
+          </button>
+        </div>
+
+        {/* Brightness Control */}
+        <div className="flex w-full mt-4 items-center justify-center">
+          <label className="mr-2">Brightness:</label>
+          <input
+            type="range"
+            min="50"
+            max="150"
+            value={brightness}
+            onChange={handleBrightnessChange}
+            className="w-60 "
+          />
+        </div>
+
+      </footer>
     </div>
   );
 };
