@@ -5,7 +5,7 @@ export async function transcribeAudio(audioUrl: string): Promise<any> {
   try {
     const transcriptResponse = await apiClient.post('/transcript', {
       audio_url: audioUrl,
-      speaker_labels: true,
+      format_text: true,
     });
 
     const transcriptId = transcriptResponse.data.id;
@@ -21,7 +21,8 @@ export async function transcribeAudio(audioUrl: string): Promise<any> {
       throw new Error('Error transcribing audio');
     }
 
-    return apiClient.get(`/transcript/${transcriptId}`);
+    const transcriptData = await apiClient.get(`/transcript/${transcriptId}`);
+    return transcriptData.data;
   } catch (error) {
     console.error('Error transcribing audio:', error);
     throw error;

@@ -21,8 +21,8 @@ export default function Home() {
   const [shadow, setShadow] = useState<string>("#000000");
   const [alignment, setAlignment] = useState<string>("Center");
   const [captionText, setCaptionText] = useState<string>("Sample Caption");
-  const [isShadowEnabled, setIsShadowEnabled] = useState<boolean>(true);
-  const [isOutlineEnabled, setIsOutlineEnabled] = useState<boolean>(true);
+  const [isShadowEnabled, setIsShadowEnabled] = useState<boolean>(false);
+  const [isOutlineEnabled, setIsOutlineEnabled] = useState<boolean>(false);
 
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -112,6 +112,23 @@ export default function Home() {
   const showShadowColorSelector = isShadowEnabled || borderStyle !== "None";
   const showOutlineColorSelector = isOutlineEnabled || borderStyle !== "None";
 
+  const predefinedFormats = [
+    { label: "Default", fontSize: "16", fontColor: "#FFFFFF", shadow: "", outline: "", isShadowEnabled: false, isOutlineEnabled: false },
+    { label: "Bold Red", fontSize: "20", fontColor: "#FF0000", shadow: "#000000", outline: "#000000", isShadowEnabled: true, isOutlineEnabled: true },
+    { label: "Blue Shadow", fontSize: "18", fontColor: "#0000FF", shadow: "#0000FF", outline: "#000000", isShadowEnabled: true, isOutlineEnabled: false },
+    { label: "Green Outline", fontSize: "16", fontColor: "#00FF00", shadow: "#000000", outline: "#00FF00", isShadowEnabled: false, isOutlineEnabled: true },
+  ];
+
+  const handleFormatChange = (formatIndex: number) => {
+    const selectedFormat = predefinedFormats[formatIndex];
+    setFontSize(selectedFormat.fontSize);
+    setFontColor(selectedFormat.fontColor);
+    setShadow(selectedFormat.shadow);
+    setOutline(selectedFormat.outline);
+    setIsShadowEnabled(selectedFormat.isShadowEnabled);
+    setIsOutlineEnabled(selectedFormat.isOutlineEnabled);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
       {/* Caption preview */}
@@ -151,6 +168,33 @@ export default function Home() {
               controls
               className="w-full max-w-md h-auto rounded-lg mb-4"
             />
+
+            {/* Predefined caption formats */}
+            <div className="mb-4">
+              <p className="text-gray-300">Select Caption Format:</p>
+              {predefinedFormats.map((format, index) => (
+                <label key={index} className="block text-gray-300">
+                  <input
+                    type="radio"
+                    name="captionFormat"
+                    defaultChecked={index === 0}
+                    onChange={() => handleFormatChange(index)}
+                    className="mr-2"
+                  />
+                  <div
+                    style={{
+                      fontSize: `${format.fontSize}px`,
+                      color: format.fontColor,
+                      fontWeight: format.label.includes("Bold") ? "bold" : "normal",
+                      textShadow: format.isShadowEnabled ? `2px 2px 4px ${format.shadow}` : "none",
+                      border: format.isOutlineEnabled ? `2px solid ${format.outline}` : "none",
+                    }}
+                  >
+                    {format.label}
+                  </div>
+                </label>
+              ))}
+            </div>
 
             {/* Custom caption settings */}
             <div className="mb-4">
