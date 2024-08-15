@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* globals.css */
+.grid-background {
+  background-color: #202124; /* Background color */
+  background-image: 
+    linear-gradient(black 1px, transparent 1px), /* Horizontal lines */
+    linear-gradient(90deg, black 1px, transparent 1px); /* Vertical lines */
+  background-size: 5px 5px; /* Highly compact grid */
+  background-position: 0 0; /* Start at the top-left corner */
+}
+
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;

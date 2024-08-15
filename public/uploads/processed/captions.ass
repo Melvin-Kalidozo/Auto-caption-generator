@@ -10,16 +10,29 @@ YCbCr Matrix: None
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Default,Arial,16,&Hffffff,&Hffffff,&H0,&H0,0,0,0,0,100,100,0,0,1,1,0,2,10,10,10,1
 
-Style: Default,Arial,18,&H00FF0000,&H0,&H00000000,&H00FF0000,0,0,0,0,100,100,0,0,1,0,1,2,10,10,10,1
+Style: Default,Arial,18,&H00000000,&H0,&H00FFFFFF,&H00,1,0,0,0,100,100,0,0,1,1,0,2,10,10,10,1
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.88,0:00:02.67,Default,,0,0,0,,I need to learn to trust you more,
-Dialogue: 0,0:00:03.17,0:00:04.56,Default,,0,0,0,,Vicki. How can I do that?
-Dialogue: 0,0:00:05.73,0:00:07.86,Default,,0,0,0,,Oh, we could play the trust game.
-Dialogue: 0,0:00:08.02,0:00:08.89,Default,,0,0,0,,The what?
-Dialogue: 0,0:00:09.02,0:00:10.64,Default,,0,0,0,,The trust game.
-Dialogue: 0,0:00:10.84,0:00:11.80,Default,,0,0,0,,Turn around.
-Dialogue: 0,0:00:13.15,0:00:14.11,Default,,0,0,0,,Okay, that's right.
-Dialogue: 0,0:00:14.23,0:00:17.60,Default,,0,0,0,,And then you fall back and you'll catch me.
-Dialogue: 0,0:00:23.59,0:00:25.21,Default,,0,0,0,,Yeah, okay, you didn't catch me.
-Dialogue: 0,0:00:26.77,0:00:29.17,Default,,0,0,0,,I'm just not very trustworthy.
+Dialogue: 0,0:00:03.20,0:00:04.17,Default,,0,0,0,,Hello? Dn. Let's go.
+Dialogue: 0,0:00:18.15,0:00:20.13,Default,,0,0,0,,Mira in a SEO quanita?
+Dialogue: 0,0:00:20.99,0:00:23.33,Default,,0,0,0,,In a new poet devil?
+Dialogue: 0,0:00:23.36,0:00:25.67,Default,,0,0,0,,Mira in India Jabbino?
+Dialogue: 0,0:00:25.79,0:00:31.95,Default,,0,0,0,,Mira in a new poethem?
+Dialogue: 0,0:00:31.98,0:00:33.11,Default,,0,0,0,,Johnny Jos?
+Dialogue: 0,0:00:33.14,0:00:34.41,Default,,0,0,0,,And doesn't gotti see?
+Dialogue: 0,0:00:36.77,0:00:58.30,Default,,0,0,0,,Zoni, zoni mangi ganga turi don't go send us in breathe.
+Dialogue: 0,0:00:58.36,0:01:01.57,Default,,0,0,0,,Never made a?
+Dialogue: 0,0:01:01.60,0:01:02.88,Default,,0,0,0,,In a new poet?
+Dialogue: 0,0:01:03.26,0:01:05.36,Default,,0,0,0,,Never made a new poet.
+Dialogue: 0,0:01:18.95,0:01:22.03,Default,,0,0,0,,Nigga, switching up on you cause you're potion for no reason.
+Dialogue: 0,0:01:22.16,0:01:23.56,Default,,0,0,0,,I don't get it.
+Dialogue: 0,0:01:23.69,0:01:24.63,Default,,0,0,0,,The fake love.
+Dialogue: 0,0:01:24.71,0:01:25.92,Default,,0,0,0,,I'm not with it.
+Dialogue: 0,0:01:25.99,0:01:28.49,Default,,0,0,0,,I own the fog stone,
+Dialogue: 0,0:01:31.76,0:01:33.58,Default,,0,0,0,,nigga. Revision. Mama. Which love is this one?
+Dialogue: 0,0:01:33.67,0:01:34.46,Default,,0,0,0,,Nuka phone.
+Dialogue: 0,0:01:34.55,0:01:36.15,Default,,0,0,0,,You go on the Jenny Jen.
+Dialogue: 0,0:01:36.62,0:02:03.56,Default,,0,0,0,,No. When and when Jenny Jen wish love is your bunny.
+Dialogue: 0,0:02:06.46,0:02:09.79,Default,,0,0,0,,Never made a seal bunny never made a?
+Dialogue: 0,0:02:09.80,0:02:20.76,Default,,0,0,0,,In a jabbino devil made I in India poet never made a new.
+Dialogue: 0,0:02:22.10,0:02:25.90,Default,,0,0,0,,I'm not good enough word skish.
