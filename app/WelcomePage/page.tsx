@@ -1,19 +1,20 @@
 "use client";
 
+import '../globals.css';
 import React, { useEffect } from 'react';
 import Slider from 'react-slick'; // Import react-slick
 import { FaPlusCircle } from 'react-icons/fa';
 import Header from '../Header';
 import Link from 'next/link';
 
-// Sample video URLs for carousel
+// Sample video URLs for carousel just used 3 videos so far
 const videoList = [
   'https://www.w3schools.com/html/mov_bbb.mp4',
   'https://www.w3schools.com/html/movie.mp4',
   'https://www.w3schools.com/html/mov_bbb.mp4',
 ];
 
-// Settings for the carousel
+// our carousel settings
 const carouselSettings = {
   dots: true,
   infinite: true,
@@ -24,11 +25,14 @@ const carouselSettings = {
   autoplaySpeed: 6000, // Change this value to adjust the speed
 };
 
-const Projects = () => {
+const WelcomePage = () => {
+
+
+
   useEffect(() => {
     const timer = setInterval(() => {
       window.location.reload();
-    }, 50000); // Refresh every 5 seconds
+    }, 50000); // Refresh every 50 seconds
 
     // Clean up the interval on component unmount
     return () => clearInterval(timer);
@@ -40,7 +44,7 @@ const Projects = () => {
         className="relative min-h-screen bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('https://th.bing.com/th?id=OIP.mrHo6OAO98pXXc1FxB595AHaJQ&w=223&h=279&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2')" }}
       >
-        <div className="absolute inset-0 bg-black bg-opacity-50"></div> {/* Overlay */}
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div> {/* Overlay for our background*/}
         
         <div className="relative flex flex-col items-center justify-center p-4 min-h-screen">
           <div className="w-full max-w-lg text-center mb-6">
@@ -49,8 +53,8 @@ const Projects = () => {
           </div>
           <div className="text-center mb-6">
             <p className="text-xl mb-4 font-semibold text-white">Get Started on your New Project</p>
-       
-           <Link  href = "/PostVideo">
+         {/*Our Create button*/}
+           <Link  href = "/CaptionPage">
             <button className="w-full bg-gray-800 text-white text-lg px-6 py-3 rounded-2xl flex items-center justify-center">
               <FaPlusCircle className="mr-2" size={24} />
               Create
@@ -63,7 +67,7 @@ const Projects = () => {
 
           
           
-          {/* Video Carousel */}
+          {/* our video Carousel */}
           <div className="w-80 max-w-lg mb-2">
             <Slider {...carouselSettings}>
               {videoList.map((video, index) => (
@@ -87,4 +91,4 @@ const Projects = () => {
   );
 };
 
-export default Projects;
+export default WelcomePage;
