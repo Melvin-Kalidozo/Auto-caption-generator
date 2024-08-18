@@ -1,49 +1,61 @@
+"use client"
 import './globals.css';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { FaPlusCircle } from 'react-icons/fa';
 import Link from 'next/link';
 
-// Video list with URLs and labels
-const videoList = [
+interface Video {
+  url: string;
+  label: string;
+}
+
+const videoList: Video[] = [
   {
     url: '/captionVideos/1.mp4',
-    label: 'Video 1'
+    label: 'Video 1',
   },
   {
     url: '/captionVideos/2.mp4',
-    label: 'Video 2'
+    label: 'Video 2',
   },
   {
     url: '/captionVideos/3.mp4',
-    label: 'Video 3'
+    label: 'Video 3',
   },
   {
     url: '/captionVideos/4.mp4',
-    label: 'Video 4'
-  }
+    label: 'Video 4',
+  },
 ];
 
-// Carousel settings
-const carouselSettings = {
-  infinite: true,
-  speed: 500,
-  slidesToShow: 2,
-  slidesToScroll: 1,
-  autoplay: true,
-  autoplaySpeed: 6000,
-  responsive: [
-    {
-      breakpoint: 768,
-      settings: {
-        slidesToShow: 1,
-        centerPadding: '0%',
-      },
-    },
-  ],
-};
+const WelcomePage: React.FC = () => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-// Welcome page component
-const WelcomePage = () => {
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    let scrollAmount = 0;
+    const scrollStep = 2; // Adjust scrolling speed
+    const scrollInterval = 20; // Adjust scroll interval
+
+    const scrollContent = () => {
+      if (scrollContainer) {
+        scrollContainer.scrollLeft += scrollStep;
+        scrollAmount += scrollStep;
+
+        // Reset scroll position to the beginning when reaching the end
+        if (scrollAmount >= scrollContainer.scrollWidth - scrollContainer.clientWidth) {
+          scrollAmount = 0;
+          scrollContainer.scrollLeft = 0;
+        }
+      }
+    };
+
+    const intervalId = setInterval(scrollContent, scrollInterval);
+
+    // Clean up the interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
     <div className="relative min-h-screen grid-background">
       <div className="absolute inset-0 bg-[#202124] bg-opacity-50"></div>
@@ -67,29 +79,14 @@ const WelcomePage = () => {
                 <FaPlusCircle className="mr-2" size={24} />
                 Create
               </button>
-
             </Link>
           </div>
 
-          {/* Uncomment the following lines if you want to use the carousel */}
-          {/* <div className="w-full max-w-4xl mb-2">
-            <Slider {...carouselSettings}>
-              {videoList.map((video, index) => (
-                <div key={index} className="mx-4 relative flex justify-center items-center">
-                  <video
-                    className="w-full h-auto rounded-3xl"
-                    src={video.url}
-                    autoPlay
-                    muted
-                    playsInline
-                  />
-                </div>
-              ))}
-            </Slider>
-          </div> */}
-
           <div className="mb-4 w-full m-auto mt-6">
-            <div className="flex overflow-x-auto scrollbar-none space-x-4">
+            <div
+              ref={scrollContainerRef}
+              className="flex overflow-x-auto scrollbar-none space-x-4 scroll-smooth"
+            >
               {videoList.map((video, index) => (
                 <div
                   key={index}
@@ -102,7 +99,7 @@ const WelcomePage = () => {
                   }}
                 >
                   <video
-                    src={video.url} // Updated to video.url
+                    src={video.url}
                     className="w-full h-full object-cover"
                     autoPlay
                     muted
@@ -114,7 +111,6 @@ const WelcomePage = () => {
               ))}
             </div>
           </div>
-
         </div>
       </div>
     </div>

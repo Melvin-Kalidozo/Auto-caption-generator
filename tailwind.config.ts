@@ -11,8 +11,7 @@ const config: Config = {
     extend: {
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+        "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
     },
   },
@@ -26,7 +25,23 @@ const config: Config = {
         '.scrollbar-none::-webkit-scrollbar': {
           display: 'none', /* Chrome, Safari, Opera */
         },
-      })
+        // Custom Scrollbar
+        '.scrollbar-custom': {
+          'scrollbar-width': 'thin',
+          'scrollbar-color': '#0078D4 #30363D', /* Thumb color, track color */
+        },
+        '.scrollbar-custom::-webkit-scrollbar': {
+          width: '8px',
+        },
+        '.scrollbar-custom::-webkit-scrollbar-track': {
+          background: '#30363D', /* Track color */
+        },
+        '.scrollbar-custom::-webkit-scrollbar-thumb': {
+          backgroundColor: '#0078D4', /* Thumb color */
+          borderRadius: '10px',
+          border: '2px solid #30363D', /* Thumb border */
+        },
+      });
     }
   ],
 };

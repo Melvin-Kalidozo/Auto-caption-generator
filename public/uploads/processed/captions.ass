@@ -10,13 +10,11 @@ YCbCr Matrix: None
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Default,Arial,16,&Hffffff,&Hffffff,&H0,&H0,0,0,0,0,100,100,0,0,1,1,0,2,10,10,10,1
 
-Style: Default,Arial,18,&H00FFFFFF,&H0,&H000000ff,&H000000ff,0,0,0,0,100,100,0,0,2,2,1,2,30,30,30,1
+Style: Default,Arial,18,&H000C879B,&H0,&H0000FFFF,&H0000FFFF,1,0,0,0,100,100,0,0,2,2,1,2,30,30,30,1
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:03.80,0:00:04.10,Default,,0,0,0,,{\fade(20,20)\blur10}I'm here,
-Dialogue: 0,0:00:04.68,0:00:05.14,Default,,0,0,0,,{\fade(20,20)\blur10}malaria. I'm here,
-Dialogue: 0,0:00:05.56,0:00:06.03,Default,,0,0,0,,{\fade(20,20)\blur10}man. I'm here.
-Dialogue: 0,0:00:06.07,0:00:06.93,Default,,0,0,0,,{\fade(20,20)\blur10}You thought I wouldn't come,
-Dialogue: 0,0:00:06.96,0:00:07.54,Default,,0,0,0,,{\fade(20,20)\blur10}but I did.
-Dialogue: 0,0:00:07.58,0:00:08.12,Default,,0,0,0,,{\fade(20,20)\blur10}I came,
-Dialogue: 0,0:00:09.13,0:00:11.79,Default,,0,0,0,,{\fade(20,20)\blur10}bitch. I'm in the fucking country.
+Dialogue: 0,0:00:01.08,0:00:03.13,Default,,0,0,0,,{\fade(20,20)\blur10}I don't know what that dream is that you have.
+Dialogue: 0,0:00:03.91,0:00:07.01,Default,,0,0,0,,{\fade(20,20)\blur10}I don't care how disappointing it might have been.
+Dialogue: 0,0:00:07.43,0:00:09.89,Default,,0,0,0,,{\fade(20,20)\blur10}As you've been working toward that dream,
+Dialogue: 0,0:00:11.29,0:00:13.37,Default,,0,0,0,,{\fade(20,20)\blur10}that. That dream that you're holding in your mind,
+Dialogue: 0,0:00:13.91,0:00:37.81,Default,,0,0,0,,{\fade(20,20)\blur10}that it's possible channel.
