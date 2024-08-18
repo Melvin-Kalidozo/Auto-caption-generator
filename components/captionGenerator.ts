@@ -24,6 +24,8 @@ export async function generateCaptions(
   alignment: string,
   shadowToggle: string,
   outlineToggle: string
+  ,neonEffect:string
+  
 ): Promise<{ srtFilePath: string; assFilePath: string }> {
 
   const uploadsDir = path.join('public', 'uploads');
@@ -131,7 +133,7 @@ export async function generateCaptions(
       shadow,
       alignment,
       shadowToggle,
-      outlineToggle
+      outlineToggle,neonEffect
     );
     console.log('Custom styling added to the ASS file.');
 

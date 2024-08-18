@@ -4,7 +4,7 @@ import { IoIosArrowBack } from "react-icons/io";
 
 const Header = () => {
   return (
-    <header className="bg-gradient-to-r grid-background from-[#353535] via-black to-[#353535] text-white p-4 shadow-md w-full flex justify-start items-center">
+    <header className=" text-white p-4 shadow-md w-full flex justify-start items-center">
       <nav className="flex items-center space-x-4">
         <Link href="/">
           <IoIosArrowBack className="text-3xl cursor-pointer hover:text-gray-400 transition duration-200 ease-in-out"/>

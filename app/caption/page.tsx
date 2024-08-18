@@ -14,6 +14,7 @@ export default function Home() {
   const [fontSize, setFontSize] = useState<string>("16");
   const [fontColor, setFontColor] = useState<string>("#FFFFFF");
   const [fontStyle, setFontStyle] = useState<string>("Normal");
+  const [neonEffect, setneonEffect] = useState<string>("no");
   const [fontWeight, setFontWeight] = useState<boolean>(false);
   const [fontItalic, setFontItalic] = useState<boolean>(false);
   const [fontUnderline, setFontUnderline] = useState<boolean>(false);
@@ -24,7 +25,7 @@ export default function Home() {
   const [alignment, setAlignment] = useState<string>("Center");
   const [captionText, setCaptionText] = useState<string>("Sample Caption");
   const [isShadowEnabled, setIsShadowEnabled] = useState<boolean>(false);
-  const [isOutlineEnabled, setIsOutlineEnabled] = useState<boolean>(false);
+  const [isOutlineEnabled, setIsOutlineEnabled] = useState<string>("0");
   const [selectedFormatIndex, setSelectedFormatIndex] = useState(0);
 
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
@@ -40,15 +41,22 @@ export default function Home() {
   };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
+    if (!event.target.files?.length) return;
+    
+    const selectedFile = event.target.files[0];
+    
     if (selectedFile && selectedFile.type.startsWith("video/")) {
+      // Clear the file input value to ensure the same file can be selected again
+      event.target.value = "";
+  
       setFile(selectedFile);
       const previewUrl = URL.createObjectURL(selectedFile);
       setVideoPreview(previewUrl);
-
+  
       return () => URL.revokeObjectURL(previewUrl);
     }
   };
+  
 
   const handleRemoveFile = () => {
     // Revoke the existing object URL
@@ -86,9 +94,9 @@ export default function Home() {
       formData.append("outline", outline);
       formData.append("shadow", shadow);
       formData.append("shadowToogle", isShadowEnabled ? "1" : "0");
-      formData.append("outlineToogle", isOutlineEnabled ? "1" : "0");
+      formData.append("outlineToogle", isOutlineEnabled);
       formData.append("alignment", alignment);
-
+      formData.append("neonEffect", neonEffect);
       try {
         const response = await fetch("/api/upload", {
           method: "POST",
@@ -131,20 +139,20 @@ export default function Home() {
   const showOutlineColorSelector = isOutlineEnabled || borderStyle !== "None";
 
   const predefinedFormats = [
-    { label: "Default", fontSize: "18", fontColor: "#FFFFFF", border: "None", shadow: "", outline: "#000000", isShadowEnabled: false, isOutlineEnabled: true, fontWeight: "normal", fontItalic: "no", fontUnderline: "none", imageUrl: "/captionImages/0.png" },
-    { label: "Black", fontSize: "18", fontColor: "#000000", border: "None", shadow: "", outline: "#FFFFFF", isShadowEnabled: false, isOutlineEnabled: true, fontWeight: "normal", fontItalic: "no", fontUnderline: "none", imageUrl: "/captionImages/1.png" },
-    { label: "Blue Shadow", fontSize: "18", fontColor: "#0000FF", border: "None", shadow: "#0000FF", outline: "#000000", isShadowEnabled: true, isOutlineEnabled: false, fontWeight: "normal", fontItalic: "no", fontUnderline: "none", imageUrl: "/captionImages/2.png" },
-    { label: "Green Outline", fontSize: "18", fontColor: "#00FF00", border: "None", shadow: "", outline: "#000000", isShadowEnabled: true, isOutlineEnabled: false, fontWeight: "", fontItalic: "no", fontUnderline: "none", imageUrl: "/captionImages/3.png" },
-    { label: "RED Outline", fontSize: "18", fontColor: "#FFFFFF", border: "None", shadow: "", outline: "#ff0000", isShadowEnabled: false, isOutlineEnabled: true, fontWeight: "", fontItalic: "", fontUnderline: "", imageUrl: "/captionImages/4.png" },
-    { label: "Shadowed Red Outline", fontSize: "18", fontColor: "#000000", border: "None", shadow: "", outline: "#0011ff", isShadowEnabled: false, isOutlineEnabled: true, fontWeight: "normal", fontItalic: "", fontUnderline: "", imageUrl: "/captionImages/5.png" },
+    { label: "Default", fontSize: "18", fontColor: "#FFFFFF",neonEffect:"no",  border: "1", shadow: "", outline: "#000000", isShadowEnabled: false, isOutlineEnabled: "3", fontWeight: "normal", fontItalic: "no", fontUnderline: "none", imageUrl: "/captionImages/0.png" },
+    { label: "Black", fontSize: "18", fontColor: "#000000",neonEffect:"no", border: "2", shadow: "", outline: "#FFFFFF", isShadowEnabled: false, isOutlineEnabled: "2", fontWeight: "normal", fontItalic: "no", fontUnderline: "none", imageUrl: "/captionImages/1.png" },
+    { label: "Blue Shadow", fontSize: "18", fontColor: "#FFFFFF",neonEffect:"yes", border: "1", shadow: "#0000FF", outline: "#0000FF", isShadowEnabled: true, isOutlineEnabled: "2", fontWeight: "", fontItalic: "no", fontUnderline: "none", imageUrl: "/captionImages/2.png" },
+    { label: "Green Outline", fontSize: "18", fontColor: "#00FF00",neonEffect:"yes", border: "2", shadow: "", outline: "#000000", isShadowEnabled: true, isOutlineEnabled: "2", fontWeight: "", fontItalic: "no", fontUnderline: "none", imageUrl: "/captionImages/3.png" },
 
+    { label: "RED Outline glow", fontSize: "18", fontColor: "#FFFFFF",neonEffect:"yes", border: "2", shadow: "#ff0000", outline: "#ff0000", isShadowEnabled: true, isOutlineEnabled: "2", fontWeight: "", fontItalic: "", fontUnderline: "", imageUrl: "/captionImages/4.png" },
+    { label: "pink Outline glow", fontSize: "18", fontColor: "#FFFFFF",neonEffect:"yes", border: "2", shadow: "#00FF00", outline: "#00FF00", isShadowEnabled: true, isOutlineEnabled: "2", fontWeight: "", fontItalic: "", fontUnderline: "", imageUrl: "/captionImages/5.png" },
+    { label: "pink Outline glow", fontSize: "18", fontColor: "#000000",neonEffect:"yes", border: "2", shadow: "#8000FF", outline: "#8000FF", isShadowEnabled: true, isOutlineEnabled: "2", fontWeight: "", fontItalic: "", fontUnderline: "", imageUrl: "/captionImages/6.png" },
+    { label: "pink Outline glow", fontSize: "18", fontColor: "#9B870C",neonEffect:"yes", border: "2", shadow: "#FFFF00", outline: "#FFFF00", isShadowEnabled: true, isOutlineEnabled: "2", fontWeight: "", fontItalic: "", fontUnderline: "", imageUrl: "/captionImages/9.png" },
 
-    { label: "Bold Italic Green Outline", fontSize: "18", fontColor: "#FFFFFF", border: "solid", shadow: "#000000", outline: "#000000", isShadowEnabled: false, isOutlineEnabled: true, fontWeight: "bold", fontItalic: "yes", fontUnderline: "none", imageUrl: "/captionImages/7.png" },
+    { label: "Bold white on black bg", fontSize: "18", fontColor: "#FFFFFF",neonEffect:"no", border: "3", shadow: "#000000", outline: "#000000", isShadowEnabled: false, isOutlineEnabled: "2", fontWeight: "normal", fontItalic: "yes", fontUnderline: "none", imageUrl: "/captionImages/7.png" },
 
-    { label: "Underlined Blue Shadow", fontSize: "18", fontColor: "#FFFFFF", border: "solid", shadow: "#0000FF", outline: "#000000", isShadowEnabled: true, isOutlineEnabled: false, fontWeight: "normal", fontItalic: "no", fontUnderline: "underline", imageUrl: "/captionImages/6.png" },
-    { label: "Bold Italic Green Outline", fontSize: "18", fontColor: "#FFFFFF", border: "solid", shadow: "#00FF00", outline: "#000000", isShadowEnabled: true, isOutlineEnabled: true, fontWeight: "bold", fontItalic: "yes", fontUnderline: "none", imageUrl: "/captionImages/8.png" },
+    { label: "Bold Italic Green Outline", fontSize: "18", fontColor: "#FFFFFF",neonEffect:"no", border: "3", shadow: "#00FF00", outline: "#000000", isShadowEnabled: true, isOutlineEnabled: "2", fontWeight: "normal", fontItalic: "yes", fontUnderline: "none", imageUrl: "/captionImages/8.png" },
 
-    { label: "white Outline", fontSize: "18", fontColor: "#000000", shadow: "#ff0000", border: "solid", outline: "#FFFFFF", isShadowEnabled: true, isOutlineEnabled: true, fontWeight: "bold", fontItalic: "yes", fontUnderline: "none", imageUrl: "/captionImages/9.png" },
   ];
 
 
@@ -158,8 +166,8 @@ export default function Home() {
     setOutline(selectedFormat.outline);
     setIsShadowEnabled(selectedFormat.isShadowEnabled);
     setIsOutlineEnabled(selectedFormat.isOutlineEnabled);
-    setBorderStyle(selectedFormat.border);
-
+    setBorderStyle(selectedFormat.border);neonEffect
+    setneonEffect(selectedFormat.neonEffect);
     if (selectedFormat.fontWeight === "normal") {
       setFontWeight(true)
     }
@@ -172,7 +180,7 @@ export default function Home() {
 
 
   return (
-    <div>
+    <div className="grid-background">
       {/* Caption preview
       <div className="mt-4">
         <p className="text-gray-300">Caption Preview:</p>
@@ -185,7 +193,7 @@ export default function Home() {
       </div> */}
 
       <Header />
-      <div className="pt-6 grid-background min-h-screen flex flex-col items-center justify-center bg-[#202124]">
+      <div className="pt-6  min-h-screen flex flex-col items-center justify-center ">
         {captionedVideoUrl && (
           <h3 className="text-gray-30 mb-4 w-[80%]">Captioned Video Preview:</h3>
         )}
@@ -308,7 +316,7 @@ export default function Home() {
               className="flex items-center bg-[#353535] text-white mb-5 p-2 rounded-lg hover:bg-gray-700"
             >
               <AiOutlineDelete className="text-gray-400 mr-2" />
-              Remove File
+              Caption a new video
             </button>
           )}
         </div>
