@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* globals.css */
+.grid-background {
+  background-color: #202124; /* Background color */
+  background-image: 
+    linear-gradient(black 1px, transparent 1px), /* Grid lines */
+    linear-gradient(90deg, black 1px, transparent 1px), /* Grid lines */
+    radial-gradient(circle, #0078D4 0%, rgba(32,33,36,0.7) 70%); /* Center gradient */
+  background-size: 
+    10px 10px, /* Grid size */
+    10px 10px, /* Grid size */
+    auto; /* Gradient covers the whole area */
+  background-position: 
+    0 0, /* Start grid at top-left */
+    0 0, /* Start grid at top-left */
+    center; /* Center the gradient */
+  background-blend-mode: overlay; /* Overlay the gradient on the grid */
+}
+
+
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;

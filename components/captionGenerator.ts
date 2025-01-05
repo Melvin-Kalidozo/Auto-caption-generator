@@ -4,7 +4,7 @@ import path from 'path';
 import ffmpeg from 'fluent-ffmpeg';
 import { uploadFile } from './fileHandler';
 import { transcribeAudio } from './transcriptionService';
-import formatToSRT from './captionFormatter';
+import {formatToSRT} from './captionFormatter';
 import { addStylingToAssFile } from './assStyler';
 
 export async function generateCaptions(
@@ -24,6 +24,8 @@ export async function generateCaptions(
   alignment: string,
   shadowToggle: string,
   outlineToggle: string
+  ,neonEffect:string
+  
 ): Promise<{ srtFilePath: string; assFilePath: string }> {
 
   const uploadsDir = path.join('public', 'uploads');
@@ -89,16 +91,13 @@ export async function generateCaptions(
     const transcriptData = await transcribeAudio(audioUrl);
     console.log('Audio transcription completed.');
 
-    // Extract the spoken text without any reference to the speaker
-    const cleanedTranscript = transcriptData.data.utterances.map((utterance: any) => ({
-      start: utterance.start,
-      end: utterance.end,
-      text: utterance.text,  // Retain only the spoken text
-    }));
-    console.log('Cleaned transcript generated.');
+    // Format to SRT
+    const srtContent = formatToSRT(transcriptData.words);
+
+
 
     // Save the SRT file
-    fs.writeFileSync(normalizedSrtFilePath, formatToSRT(cleanedTranscript));
+    fs.writeFileSync(normalizedSrtFilePath, srtContent );
     console.log(`SRT file saved at: ${normalizedSrtFilePath}`);
 
     // Convert the SRT file to ASS format
@@ -134,7 +133,7 @@ export async function generateCaptions(
       shadow,
       alignment,
       shadowToggle,
-      outlineToggle
+      outlineToggle,neonEffect
     );
     console.log('Custom styling added to the ASS file.');
 

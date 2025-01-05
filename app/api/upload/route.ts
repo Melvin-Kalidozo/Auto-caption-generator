@@ -25,8 +25,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       const shadowToogle = formData.get('shadowToogle') as string;
       const outlineToogle = formData.get('outlineToogle') as string;
       const alignment = formData.get('alignment') as string;
+      const neonEffect = formData.get('neonEffect') as string;
 
       console.log(`shadowToogle value ..............: ${shadowToogle}`);
+      console.log(`outlineToogle value ..............: ${outlineToogle}`);
+
+      console.log(`borderStyle value ..............: ${borderStyle}`);
 
       if (shadowToogle === "0") {
 
@@ -76,7 +80,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         shadow,
         alignment,
         shadowToogle,
-        outlineToogle
+        outlineToogle,neonEffect
       );
 
       // Clear existing files
